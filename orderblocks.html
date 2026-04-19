@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curriculum Basics | Bharadwaj Learning Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .text-teal { color: #64FFDA; }
+        .bg-teal { background-color: #64FFDA; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .reveal-up { opacity: 0; transform: translateY(30px); transition: all 1s ease-out; }
+        .reveal-visible { opacity: 1; transform: translate(0); }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center glass rounded-2xl px-8 py-3 reveal-up reveal-visible">
+            <a href="frontend.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <i data-lucide="trending-up" class="text-teal w-8 h-8"></i>
+                <span class="text-xl font-bold tracking-tighter uppercase italic">Bharadwaj Learning Lab</span>
+            </a>
+            <div class="hidden md:flex gap-8 text-sm font-medium opacity-80">
+                <a href="frontend.html" class="hover:text-teal transition-colors">Home</a>
+                <a href="psychology.html" class="hover:text-teal transition-colors">Psychology</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="pt-40 pb-16 px-6 relative">
+        <div class="absolute inset-0 bg-teal/5 blur-[100px] rounded-full max-w-2xl mx-auto -top-20 z-0 pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10 reveal-up">
+            <span class="text-teal font-bold tracking-widest uppercase text-xs mb-4 block">Curriculum Foundation</span>
+            <h1 class="text-5xl md:text-6xl font-bold mb-6">Mastering <span class="text-teal italic">Orderblocks</span></h1>
+            <p class="text-slate-400 text-lg leading-relaxed">
+                Before you learn how to enter the market, you must understand where the market algorithms are drawing price towards. This module covers High Timeframe (HTF) reference points, targeting liquidity, and executing entries using the TCP Protocol.
+            </p>
+        </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <section class="pb-24 px-6 relative z-10" id="orderblocks">
+        <div class="max-w-7xl mx-auto space-y-24">
+            
+            <!-- SECTION 1: ENTRIES & TARGETS -->
+            <div class="grid lg:grid-cols-2 gap-16 items-center reveal-up">
+                <!-- Text Content -->
+                <div class="space-y-8">
+                    <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
+                        <i data-lucide="target" class="text-teal w-4 h-4"></i>
+                        <span class="text-xs uppercase font-bold tracking-widest text-slate-300">Phase 01</span>
+                    </div>
+                    <h2 class="text-4xl font-bold">Entry and Targets</h2>
+                    <p class="text-slate-400">Trading isn't about guessing direction. It's about letting price tap into High Timeframe institutional points of interest, and identifying the precise "draw on liquidity."</p>
+                    
+                    <div class="glass p-6 rounded-2xl border-l-4 border-l-teal space-y-4">
+                        <h3 class="font-bold text-xl">The Target Selection Rules</h3>
+                        <ul class="space-y-3 text-slate-300 ml-2">
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="check-circle-2" class="text-teal w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                                <span><strong>HTF Reference Points:</strong> Always anchor your trade narrative to a Higher Time Frame draw on liquidity.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="check-circle-2" class="text-teal w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                                <span><strong>Scalping Dynamics:</strong> Focus on low-hanging, easy targets on the Lower Time Frame (LTF).</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="crosshairs" class="text-teal w-5 h-5 flex-shrink-0 mt-0.5"></i>
+                                <span><strong>Best Quality Targets:</strong> Unfilled FVG (Fair Value Gaps), BPRs, and relative equal highs/lows.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-orange-500/10 border border-orange-500/30 p-4 rounded-xl flex gap-4 items-start">
+                        <i data-lucide="lightbulb" class="text-orange-500 w-6 h-6 mt-1 flex-shrink-0"></i>
+                        <div>
+                            <p class="text-orange-400 font-bold uppercase text-xs mb-1">Bonus Tip</p>
+                            <p class="text-slate-300 text-sm italic">If you are ever confused during execution, place your stoploss strictly above 3 Points of Interest (POI) on the Lower Time Frame to avoid being swept by noise.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Container -->
+                <div class="relative group">
+                    <div class="absolute -inset-2 bg-teal/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="glass rounded-3xl overflow-hidden relative border border-white/10 p-2 text-center bg-white">
+                        <!-- User will replace this src -->
+                        <img src="basics_targets.png" alt="Bearish Breaker Block Diagram Entry and Targets" class="w-full h-auto rounded-2xl" onerror="this.src='https://images.unsplash.com/photo-1611974717537-77576503b87b?auto=format&fit=crop&q=80'">
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-white/5">
+
+            <!-- SECTION 2: T-C-P PROTOCOL -->
+            <div class="grid lg:grid-cols-2 gap-16 items-center reveal-up">
+                <!-- Image Container (Left side this time) -->
+                <div class="relative group order-2 lg:order-1">
+                    <div class="absolute -inset-2 bg-teal/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div class="glass rounded-3xl overflow-hidden relative border border-white/10 p-2 text-center bg-white">
+                        <!-- User will replace this src -->
+                        <img src="basics_tcp.png" alt="T-C-P Protocol Execution Diagram" class="w-full h-auto rounded-2xl" onerror="this.src='https://images.unsplash.com/photo-1642790103340-02e0b57e793e?auto=format&fit=crop&q=80'">
+                    </div>
+                </div>
+
+                <!-- Text Content (Right side) -->
+                <div class="space-y-8 order-1 lg:order-2">
+                    <div class="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
+                        <i data-lucide="zap" class="text-teal w-4 h-4"></i>
+                        <span class="text-xs uppercase font-bold tracking-widest text-slate-300">Phase 02</span>
+                    </div>
+                    <h2 class="text-4xl font-bold">The T-C-P Protocol</h2>
+                    <p class="text-slate-400">An algorithmic approach to entering the market safely after a massive sweep in liquidity. Never jump the gun. Wait for the mechanical confirmation.</p>
+
+                    <div class="space-y-6">
+                        <!-- T -->
+                        <div class="glass p-5 rounded-2xl border border-white/5 hover:border-teal/30 transition-colors flex gap-5 items-start">
+                            <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center border border-teal/20 flex-shrink-0">
+                                <span class="text-xl font-bold text-teal">T</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Trigger (Stop Hunt / SMT)</h4>
+                                <p class="text-sm text-slate-400">The first stage is waiting for retail stops to be taken out. Look for a liquidity sweep or an SMT Divergence to ignite the algorithm.</p>
+                            </div>
+                        </div>
+                        <!-- C -->
+                        <div class="glass p-5 rounded-2xl border border-white/5 hover:border-teal/30 transition-colors flex gap-5 items-start">
+                            <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center border border-teal/20 flex-shrink-0">
+                                <span class="text-xl font-bold text-teal">C</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Confirmation (Body Close)</h4>
+                                <p class="text-sm text-slate-400">Displacement is key. We wait for a strong candle body close below the prior low (or inverse). This validates that the smart money has shifted direction.</p>
+                            </div>
+                        </div>
+                        <!-- P -->
+                        <div class="glass p-5 rounded-2xl border border-white/5 hover:border-teal/30 transition-colors flex gap-5 items-start">
+                            <div class="w-12 h-12 bg-slate-900 rounded-xl flex items-center justify-center border border-teal/20 flex-shrink-0">
+                                <span class="text-xl font-bold text-teal">P</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg mb-1">Participation (Entry)</h4>
+                                <p class="text-sm text-slate-400">Once T and C are fulfilled, we participate on the retracement into the newly established Bearish/Bullish Breaker or FVG.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 text-center border-t border-white/5 mt-20">
+        <p class="text-slate-500 text-sm">Return to <a href="basics.html" class="text-teal hover:underline font-bold">Curriculum Hub</a></p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
