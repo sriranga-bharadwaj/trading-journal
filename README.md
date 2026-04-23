@@ -1,16 +1,97 @@
-# React + Vite
+ Trading Education Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern interactive trading education platform built with React, Vite, Node.js, and Tailwind CSS, designed to teach market concepts through structured content and real-time simulations.
 
-Currently, two official plugins are available:
+Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Bharadwaj Learning Lab is a hybrid web application that combines:
 
-## React Compiler
+ Curriculum-based learning modules
+ Interactive trading simulator
+ Concept-driven UI/UX (TCP Protocol, Orderblocks, etc.)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The platform bridges the gap between theory and execution by allowing users to learn → observe → apply in a single environment.
 
-## Expanding the ESLint configuration
+  Tech Stack
+Frontend
+ React (UI framework)
+ Vite (fast development/build tool)
+ Tailwind CSS (styling)
+ Vanilla JavaScript (for simulator logic & canvas rendering)
+   Backend
+ Node.js
+ Express.js
+ MongoDB (for future user/data features)
+ Project Structure
+client/
+├── public/              # Static curriculum pages & assets
+│   ├── basics.html
+│   ├── orderblocks.html
+│   ├── psychology.html
+│   ├── simulator.html
+│   └── *.png
+│
+├── src/                 # React Application
+│   ├── assets/          # Images used in React components
+│   ├── App.jsx          # Main UI logic
+│   ├── main.jsx         # Entry point
+│   └── index.css        # Tailwind/global styles
+│
+├── index.html           # Vite entry HTML
+├── server.js            # Backend server
+├── package.json         # Dependencies
+└── vite.config.js       # Build config
+ Features
+ Learning Modules
+Structured curriculum pages (Orderblocks, Psychology, Basics)
+Visual diagrams and real-market concepts
+Clean glassmorphism UI
+ Trading Simulator
+Real-time candle generation (Canvas-based)
+TCP Protocol implementation:
+T → Trigger
+C → Confirmation
+P → Participation
+Smooth animated candles
+Decision-based interaction (BUY/SELL)
+Risk/Reward feedback system
+ UI/UX
+Dark-themed trading interface
+Responsive layout
+Smooth animations and transitions
+Interactive hints and logs
+ Getting Started
+1. Install Dependencies
+cd client
+npm install
+2. Run Development Server
+npm run dev
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+App will run on:
+
+http://localhost:5173
+3. Run Backend Server
+node server.js
+ Navigation
+/ → React Landing Page
+/orderblocks.html → Orderblocks Module
+/basics.html → Basics Module
+/psychology.html → Psychology Module
+/simulator.html → Trading Simulator
+ Future Improvements
+Convert all HTML modules into React pages
+Add authentication & user progress tracking
+Store trade results in MongoDB
+Multi-scenario simulator engine
+Real market data integration (APIs)
+ Purpose
+
+This project is built to demonstrate:
+
+Real-world full-stack development
+Interactive financial system simulations
+Clean UI engineering with modular design
+Practical application of problem-solving and system thinking
+
+ Author
+Sriranga Bharadwaj
