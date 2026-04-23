@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trade Simulator | Bharadwaj Learning Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .glass {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+        }
+
+        .teal { color: #64FFDA; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        #mainChart {
+            display: block;
+            width: 100%;
+            cursor: crosshair;
+            background: #060f1e;
+            border-radius: 12px;
+        }
+
+        .badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            flex-shrink: 0;
+        }
+
+        .badge-off  { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.07); }
+        .badge-T    { background: rgba(251,191,36,0.15);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.4); box-shadow: 0 0 16px rgba(251,191,36,0.2); }
+        .badge-C    { background: rgba(239,68,68,0.15);   color: #ef4444; border: 1px solid rgba(239,68,68,0.4);  box-shadow: 0 0 16px rgba(239,68,68,0.2); }
+        .badge-P    { background: rgba(100,255,218,0.15); color: #64FFDA; border: 1px solid rgba(100,255,218,0.4); box-shadow: 0 0 20px rgba(100,255,218,0.3); }
+
+        @keyframes pulseTeal {
+            0%,100% { box-shadow: 0 0 0 0 rgba(100,255,218,0.5); }
+            50% { box-shadow: 0 0 0 10px rgba(100,255,218,0); }
+        }
+
+        .pulse { animation: pulseTeal 1.4s infinite; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-up { animation: fadeUp 0.45s ease forwards; }
+
+        .btn-start, .btn-stop, .btn-reset {
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            font-family: inherit;
+        }
+
+        .btn-start {
+            background: rgba(100,255,218,0.1);
+            border: 1.5px solid rgba(100,255,218,0.5);
+            color: #64FFDA;
+        }
+
+        .btn-start:hover { background: rgba(100,255,218,0.2); }
+        .btn-start:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .btn-stop {
+            background: rgba(239,68,68,0.08);
+            border: 1.5px solid rgba(239,68,68,0.45);
+            color: #ef4444;
+        }
+
+        .btn-stop:hover { background: rgba(239,68,68,0.18); }
+
+        .btn-reset {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #64748b;
+        }
+
+        .btn-reset:hover { color: #f8fafc; }
+
+        .btn-speed {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.07);
+            color: #64748b;
+            padding: 5px 12px;
+            border-radius: 7px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-speed.active {
+            background: rgba(100,255,218,0.14);
+            border-color: rgba(100,255,218,0.4);
+            color: #64FFDA;
+        }
+
+        .btn-sell {
+            background: rgba(239,68,68,0.14);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            padding: 13px 36px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-sell:hover {
+            background: rgba(239,68,68,0.28);
+            transform: scale(1.04);
+        }
+
+        .btn-buy {
+            background: rgba(100,255,218,0.1);
+            border: 2px solid #64FFDA;
+            color: #64FFDA;
+            padding: 13px 36px;
+            border-radius: 10px;
+            font-weight: 900;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-buy:hover {
+            background: rgba(100,255,218,0.22);
+            transform: scale(1.04);
+        }
+
+        #decisionOverlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(2,6,23,0.72);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            z-index: 20;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #decisionOverlay.show { display: flex; }
+
+        #resultModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(2,6,23,0.88);
+            backdrop-filter: blur(18px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        #resultModal.show { display: flex; }
+
+        .sim-layout {
+            display: flex;
+            gap: 20px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+
+        .sim-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sim-side {
+            width: 268px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chart-wrap { position: relative; }
+
+        @media (max-width: 900px) {
+            .sim-layout { flex-direction: column; }
+            .sim-side { width: 100%; }
+        }
+
+        #logArea {
+            max-height: 90px;
+            overflow-y: auto;
+        }
+
+        #logArea::-webkit-scrollbar { width: 3px; }
+        #logArea::-webkit-scrollbar-thumb { background: rgba(100,255,218,0.2); }
+    </style>
+</head>
+<body>
+    <nav style="position:fixed;top:0;left:0;right:0;z-index:50;padding:14px 24px">
+        <div class="glass" style="max-width:1300px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:10px 24px;border-radius:14px">
+            <a href="frontend.html" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:#f8fafc;font-weight:700;font-size:0.95rem;letter-spacing:-0.02em;text-transform:uppercase;font-style:italic">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                    <polyline points="16 7 22 7 22 13"></polyline>
+                </svg>
+                Bharadwaj Learning Lab
+            </a>
+
+            <div style="display:flex;gap:28px;font-size:0.82rem;font-weight:500">
+                <a href="frontend.html" style="color:#64748b;text-decoration:none">Home</a>
+                <a href="orderblocks.html" style="color:#64748b;text-decoration:none">Orderblocks</a>
+                <a href="#" style="color:#64FFDA;text-decoration:none;font-weight:700">Simulator</a>
+            </div>
+        </div>
+    </nav>
+
+    <section style="padding:120px 20px 24px">
+        <div style="max-width:1300px;margin:0 auto">
+            <span style="display:inline-block;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:4px 12px;border-radius:99px;border:1px solid rgba(100,255,218,0.3);background:rgba(100,255,218,0.06);color:#64FFDA;margin-bottom:10px">
+                Interactive Lab
+            </span>
+            <h1 style="font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin:0 0 6px">
+                Live Trade <span style="color:#64FFDA;font-style:italic">Simulator</span>
+            </h1>
+            <p style="color:#64748b;font-size:0.88rem;max-width:520px;line-height:1.6;margin:0">
+                Watch candles form in real-time. Apply the TCP Protocol — find the trigger, confirm displacement,
+                and execute at the right moment.
+            </p>
+        </div>
+    </section>
+
+    <div class="sim-layout">
+        <div class="sim-main">
+            <div class="glass" style="padding:10px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+                <div style="display:flex;align-items:center;gap:14px">
+                    <span style="font-weight:900;font-size:1.1rem;font-family:'JetBrains Mono',monospace">NQ1!</span>
+                    <span id="currentPrice" style="color:#64FFDA;font-weight:700;font-size:1rem;font-family:'JetBrains Mono',monospace">—</span>
+                    <span id="priceChange" style="font-size:0.78rem;font-family:'JetBrains Mono',monospace;color:#64748b">+0.00%</span>
+                </div>
+
+                <div style="display:flex;gap:16px;font-size:0.73rem;font-family:'JetBrains Mono',monospace;color:#334155">
+                    <span>NASDAQ E-mini · 1M</span>
+                    <span id="candleCount">0 / 20</span>
+                </div>
+            </div>
+
+            <div class="chart-wrap">
+                <canvas id="mainChart" height="420"></canvas>
+
+                <div id="decisionOverlay">
+                    <div class="fade-up glass" style="padding:28px 36px;text-align:center;border-color:rgba(100,255,218,0.4);background:rgba(4,10,24,0.9);max-width:340px">
+                        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+                            <span style="font-size:1.3rem">&#9889;</span>
+                            <span style="color:#64FFDA;font-weight:900;font-size:1rem;letter-spacing:0.1em;text-transform:uppercase">Setup Detected</span>
+                        </div>
+
+                        <p style="color:#94a3b8;font-size:0.78rem;line-height:1.6;margin:0 0 20px">
+                            TCP Protocol complete.<br />
+                            Price has entered the zone. Your move.
+                        </p>
+
+                        <div style="display:flex;gap:14px;justify-content:center">
+                            <button class="btn-sell" onclick="submitDecision('SELL')">&#9660; SELL</button>
+                            <button class="btn-buy" onclick="submitDecision('BUY')">&#9650; BUY</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass" style="padding:12px 18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                    <button id="btnStart" class="btn-start" onclick="startSim()">&#9654; Start</button>
+                    <button id="btnStop" class="btn-stop" onclick="stopSim()">&#9208; Stop</button>
+                    <button class="btn-reset" onclick="resetSim()">&#8635; Reset</button>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:8px">
+                    <span style="color:#334155;font-size:0.72rem;font-family:'JetBrains Mono',monospace">SPEED</span>
+                    <button id="sp1" class="btn-speed active" onclick="setSpeed('sp1', 850)">1x</button>
+                    <button id="sp2" class="btn-speed" onclick="setSpeed('sp2', 430)">2x</button>
+                    <button id="sp3" class="btn-speed" onclick="setSpeed('sp3', 220)">3x</button>
+                </div>
+
+                <div style="display:flex;gap:12px;font-size:0.73rem;font-family:'JetBrains Mono',monospace">
+                    <span>SL: <span id="slVal" style="color:#ef4444">—</span></span>
+                    <span>TP: <span id="tpVal" style="color:#64FFDA">—</span></span>
+                    <span>RR: <span id="rrVal" style="color:#94a3b8">—</span></span>
+                </div>
+            </div>
+
+            <div class="glass" style="padding:12px 16px" id="logArea">
+                <p style="font-size:0.72rem;font-family:'JetBrains Mono',monospace;color:#334155;margin:0">// Simulation ready. Press Start to begin.</p>
+            </div>
+        </div>
+
+        <div class="sim-side">
+            <div class="glass" style="padding:18px">
+                <p style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64FFDA;margin:0 0 16px">TCP Protocol</p>
+
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+                    <div id="bT" class="badge badge-off">T</div>
+                    <div style="flex:1">
+                        <p style="font-weight:700;font-size:0.85rem;margin:0 0 2px">Trigger</p>
+                        <p id="dT" style="font-size:0.72rem;color:#334155;margin:0">Waiting for stop hunt…</p>
+                    </div>
+                    <span id="ckT" style="color:#1e293b;font-size:1rem">&#9675;</span>
+                </div>
+
+                <div style="height:1px;background:rgba(255,255,255,0.05)"></div>
+
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+                    <div id="bC" class="badge badge-off">C</div>
+                    <div style="flex:1">
+                        <p style="font-weight:700;font-size:0.85rem;margin:0 0 2px">Confirmation</p>
+                        <p id="dC" style="font-size:0.72rem;color:#334155;margin:0">Awaiting displacement…</p>
+                    </div>
+                    <span id="ckC" style="color:#1e293b;font-size:1rem">&#9675;</span>
+                </div>
+
+                <div style="height:1px;background:rgba(255,255,255,0.05)"></div>
+
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+                    <div id="bP" class="badge badge-off">P</div>
+                    <div style="flex:1">
+                        <p style="font-weight:700;font-size:0.85rem;margin:0 0 2px">Participation</p>
+                        <p id="dP" style="font-size:0.72rem;color:#334155;margin:0">Waiting for retrace…</p>
+                    </div>
+                    <span id="ckP" style="color:#1e293b;font-size:1rem">&#9675;</span>
+                </div>
+            </div>
+
+            <div class="glass" style="padding:18px">
+                <p style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#64748b;margin:0 0 14px">Legend</p>
+
+                <div style="display:flex;flex-direction:column;gap:9px">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:28px;height:0;border-top:2px dashed rgba(251,191,36,0.7)"></div>
+                        <span style="font-size:0.74rem;color:#94a3b8">BSL — Buy Side Liquidity</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:28px;height:12px;background:rgba(100,255,218,0.1);border:1px solid rgba(100,255,218,0.3);border-radius:3px"></div>
+                        <span style="font-size:0.74rem;color:#94a3b8">FVG — Fair Value Gap</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:28px;height:12px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);border-radius:3px"></div>
+                        <span style="font-size:0.74rem;color:#94a3b8">OB — Orderblock</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:28px;height:0;border-top:2px dashed rgba(239,68,68,0.6)"></div>
+                        <span style="font-size:0.74rem;color:#94a3b8">Target Level</span>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <div style="width:11px;height:17px;background:#26a69a;border-radius:2px"></div>
+                        <div style="width:11px;height:17px;background:#ef5350;border-radius:2px"></div>
+                        <span style="font-size:0.74rem;color:#94a3b8;margin-left:4px">Bull / Bear candle</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass" style="padding:18px;border-color:rgba(100,255,218,0.08)">
+                <p style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#334155;margin:0 0 8px">Hint</p>
+                <p id="hintText" style="font-size:0.76rem;line-height:1.65;color:#475569;margin:0">
+                    Watch for price to sweep above a prior high. That is your first sign the algorithm has activated.
+                </p>
+            </div>
+
+            <a
+                href="orderblocks.html"
+                class="glass"
+                style="display:flex;align-items:center;gap:12px;padding:14px 16px;text-decoration:none;transition:border-color 0.2s;border-color:rgba(255,255,255,0.06)"
+                onmouseover="this.style.borderColor='rgba(100,255,218,0.3)'"
+                onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'"
+            >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <div>
+                    <p style="font-weight:700;font-size:0.82rem;margin:0 0 2px;color:#f8fafc">Review Orderblocks</p>
+                    <p style="font-size:0.72rem;color:#334155;margin:0">Back to the lesson</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div id="resultModal">
+        <div id="resultCard" class="glass fade-up" style="padding:36px;max-width:480px;width:calc(100% - 40px);border-color:rgba(100,255,218,0.3)">
+            <div style="text-align:center;margin-bottom:24px">
+                <div id="rIcon" style="font-size:3.5rem;margin-bottom:10px">&#127919;</div>
+                <h2 id="rTitle" style="font-size:1.8rem;font-weight:900;margin:0 0 4px;color:#64FFDA"></h2>
+                <p id="rSub" style="color:#64748b;font-size:0.82rem;margin:0"></p>
+            </div>
+
+            <div id="rStats" style="margin-bottom:18px"></div>
+
+            <div class="glass" style="padding:16px;margin-bottom:22px;border-color:rgba(100,255,218,0.15);background:rgba(100,255,218,0.03)">
+                <p style="font-size:0.68rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#64FFDA;margin:0 0 8px">What happened?</p>
+                <p id="rExplainText" style="font-size:0.78rem;line-height:1.7;color:#94a3b8;margin:0"></p>
+            </div>
+
+            <div style="display:flex;gap:10px">
+                <button
+                    onclick="resetSim(); closeResult();"
+                    style="flex:1;background:rgba(100,255,218,0.1);border:1.5px solid rgba(100,255,218,0.4);color:#64FFDA;padding:13px;border-radius:10px;font-weight:700;font-size:0.82rem;cursor:pointer;text-transform:uppercase;letter-spacing:0.06em;transition:background 0.2s;font-family:inherit"
+                    onmouseover="this.style.background='rgba(100,255,218,0.2)'"
+                    onmouseout="this.style.background='rgba(100,255,218,0.1)'"
+                >
+                    &#8635; Try Again
+                </button>
+
+                <a
+                    href="orderblocks.html"
+                    style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#64748b;padding:13px;border-radius:10px;font-weight:600;font-size:0.82rem;text-decoration:none;display:flex;align-items:center;justify-content:center;transition:color 0.2s"
+                    onmouseover="this.style.color='#f8fafc'"
+                    onmouseout="this.style.color='#64748b'"
+                >
+                    Review Module
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var SCENARIO = [
+            {o:97.8,  h:98.6,  l:97.2,  c:98.4},
+            {o:98.4,  h:99.3,  l:98.0,  c:99.0},
+            {o:99.0,  h:100.1, l:98.6,  c:99.8},
+            {o:99.8,  h:100.9, l:99.4,  c:100.6},
+            {o:100.6, h:101.8, l:100.2, c:101.5},
+            {o:101.5, h:102.4, l:101.1, c:102.1},
+            {o:102.1, h:102.3, l:101.0, c:101.4},
+            {o:101.4, h:101.9, l:100.8, c:101.6},
+            {o:101.6, h:102.9, l:101.2, c:102.7},
+            {o:102.7, h:103.8, l:102.3, c:103.5},
+            {o:103.5, h:104.6, l:103.1, c:104.3, bsl:true},
+            {o:104.3, h:106.1, l:104.0, c:104.5, phase:'T'},
+            {o:104.5, h:105.0, l:103.8, c:104.1, phase:'T'},
+            {o:104.1, h:104.3, l:102.0, c:102.2, phase:'C'},
+            {o:102.2, h:102.5, l:100.4, c:100.7, phase:'C'},
+            {o:100.7, h:101.1, l:99.5,  c:99.8},
+            {o:99.8,  h:100.6, l:99.4,  c:100.3},
+            {o:100.3, h:101.5, l:100.0, c:101.3},
+            {o:101.3, h:102.3, l:101.0, c:102.1},
+            {o:102.1, h:102.7, l:101.8, c:102.4, phase:'PAUSE'},
+            {o:102.4, h:102.6, l:101.3, c:101.5},
+            {o:101.5, h:101.7, l:100.3, c:100.5},
+            {o:100.5, h:100.6, l:99.0,  c:99.1},
+            {o:99.1,  h:99.3,  l:97.6,  c:97.8}
+        ];
+
+        var BSL_PRICE = 104.6;
+        var FVG_TOP   = 103.8;
+        var FVG_BOT   = 102.5;
+        var OB_TOP    = 104.5;
+        var OB_BOT    = 104.0;
+        var TARGET    = 97.6;
+        var PAUSE_IDX = 19;
+
+        var revealed = [];
+        var simRunning = false;
+        var paused = false;
+        var decision = null;
+        var ticker = null;
+        var speedMs = 850;
+        var tDone = false;
+        var cDone = false;
+
+        var currentIdx = 0;
+        var playbackMode = 'main';
+
+        var animatingCandle = null;
+        var animationFrame = null;
+        var animationDuration = 420;
+
+        var canvas, ctx;
+        var VISIBLE = 22;
+        var SLOT = 30;
+        var BODY_W = 16;
+        var PAD = { top: 40, right: 72, bottom: 46, left: 66 };
+
+        function sizeCanvas() {
+            var wrap = canvas.parentElement;
+            var w = wrap.offsetWidth;
+            if (w < 10) w = 700;
+            canvas.width = w;
+            canvas.height = Math.round(Math.min(430, Math.max(260, w * 0.48)));
+        }
+
+        function getPriceRange() {
+            var src = revealed.slice();
+            if (animatingCandle && animatingCandle.current) src.push(animatingCandle.current);
+            if (!src.length) src = SCENARIO.slice(0, 5);
+
+            var lo = Infinity;
+            var hi = -Infinity;
+
+            for (var i = 0; i < src.length; i++) {
+                if (src[i].l < lo) lo = src[i].l;
+                if (src[i].h > hi) hi = src[i].h;
+            }
+
+            var r = hi - lo;
+            return {
+                lo: lo - r * 0.13,
+                hi: hi + r * 0.13
+            };
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+
+        function draw() {
+            if (!ctx) return;
+
+            var W = canvas.width;
+            var H = canvas.height;
+            var cW = W - PAD.left - PAD.right;
+            var cH = H - PAD.top - PAD.bottom;
+
+            ctx.clearRect(0, 0, W, H);
+            ctx.fillStyle = '#060f1e';
+            ctx.fillRect(0, 0, W, H);
+
+            var range = getPriceRange();
+            var lo = range.lo;
+            var hi = range.hi;
+
+            function toY(p) {
+                return PAD.top + cH - (p - lo) / (hi - lo) * cH;
+            }
+
+            var combined = revealed.slice();
+            if (animatingCandle && animatingCandle.current) combined.push(animatingCandle.current);
+
+            var vis = combined.slice(-VISIBLE);
+
+            function toX(i) {
+                return PAD.left + i * SLOT + SLOT * 0.5;
+            }
+
+            for (var g = 0; g <= 5; g++) {
+                var gy = PAD.top + cH * g / 5;
+                var gp = hi - (hi - lo) * g / 5;
+
+                ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(PAD.left, gy);
+                ctx.lineTo(W - PAD.right, gy);
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(100,116,139,0.55)';
+                ctx.font = '10px JetBrains Mono,monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText(gp.toFixed(1), PAD.left - 5, gy + 4);
+            }
+
+            for (var vi = 0; vi < vis.length; vi++) {
+                if (vi % 5 === 0) {
+                    ctx.strokeStyle = 'rgba(255,255,255,0.022)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(toX(vi), PAD.top);
+                    ctx.lineTo(toX(vi), PAD.top + cH);
+                    ctx.stroke();
+
+                    ctx.fillStyle = 'rgba(100,116,139,0.3)';
+                    ctx.font = '9px JetBrains Mono,monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(combined.length - vis.length + vi + 1), toX(vi), H - PAD.bottom + 16);
+                }
+            }
+
+            if (tDone || combined.some(function(c) { return c.bsl; })) {
+                var by = toY(BSL_PRICE);
+                ctx.save();
+                ctx.setLineDash([7,5]);
+                ctx.strokeStyle = 'rgba(251,191,36,0.7)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(PAD.left, by);
+                ctx.lineTo(W - PAD.right, by);
+                ctx.stroke();
+                ctx.restore();
+
+                ctx.fillStyle = 'rgba(251,191,36,0.85)';
+                ctx.font = 'bold 9px JetBrains Mono,monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText('BSL', W - PAD.right - 3, by - 3);
+            }
+
+            if (cDone) {
+                var fy1 = toY(FVG_TOP);
+                var fy2 = toY(FVG_BOT);
+
+                ctx.fillStyle = 'rgba(100,255,218,0.07)';
+                ctx.fillRect(PAD.left, fy1, cW, fy2 - fy1);
+
+                ctx.strokeStyle = 'rgba(100,255,218,0.25)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(PAD.left, fy1, cW, fy2 - fy1);
+
+                ctx.fillStyle = 'rgba(100,255,218,0.6)';
+                ctx.font = 'bold 9px JetBrains Mono,monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText('FVG', PAD.left + 5, fy1 + 11);
+            }
+
+            if (decision) {
+                var oy1 = toY(OB_TOP);
+                var oy2 = toY(OB_BOT);
+
+                ctx.fillStyle = 'rgba(167,139,250,0.07)';
+                ctx.fillRect(PAD.left, oy1, cW, oy2 - oy1);
+
+                ctx.strokeStyle = 'rgba(167,139,250,0.28)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(PAD.left, oy1, cW, oy2 - oy1);
+
+                ctx.fillStyle = 'rgba(167,139,250,0.6)';
+                ctx.font = 'bold 9px JetBrains Mono,monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText('OB', PAD.left + 5, oy1 - 3);
+            }
+
+            if (decision === 'SELL') {
+                var ty = toY(TARGET);
+                ctx.save();
+                ctx.setLineDash([5,4]);
+                ctx.strokeStyle = 'rgba(239,68,68,0.55)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(PAD.left, ty);
+                ctx.lineTo(W - PAD.right, ty);
+                ctx.stroke();
+                ctx.restore();
+
+                ctx.fillStyle = 'rgba(239,68,68,0.75)';
+                ctx.font = 'bold 9px JetBrains Mono,monospace';
+                ctx.textAlign = 'right';
+                ctx.fillText('TP', W - PAD.right - 3, ty - 3);
+            }
+
+            for (var ci = 0; ci < vis.length; ci++) {
+                var c = vis[ci];
+                var cx = toX(ci);
+                var bull = c.c >= c.o;
+                var clr = bull ? '#26a69a' : '#ef5350';
+                var bTop = toY(Math.max(c.o, c.c));
+                var bBot = toY(Math.min(c.o, c.c));
+                var bH = Math.max(bBot - bTop, 1.5);
+
+                if (ci === vis.length - 1) {
+                    ctx.fillStyle = 'rgba(100,255,218,0.025)';
+                    ctx.fillRect(cx - SLOT / 2, PAD.top, SLOT, cH);
+                }
+
+                ctx.strokeStyle = clr;
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(cx, toY(c.h));
+                ctx.lineTo(cx, toY(c.l));
+                ctx.stroke();
+
+                ctx.fillStyle = clr;
+                ctx.fillRect(cx - BODY_W / 2, bTop, BODY_W, bH);
+
+                if (ci === vis.length - 1) {
+                    if (c.phase === 'T') drawTag(cx, toY(c.h) - 22, 'STOP HUNT', '#fbbf24');
+                    if (c.phase === 'C' && combined.length === 14) drawTag(cx, toY(c.h) - 22, 'DISPLACEMENT', '#ef4444');
+                }
+            }
+
+            if (vis.length > 0) {
+                var last = vis[vis.length - 1];
+                var lpy = toY(last.c);
+
+                ctx.fillStyle = last.c >= last.o ? '#26a69a' : '#ef5350';
+                ctx.fillRect(W - PAD.right + 2, lpy - 9, 58, 18);
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px JetBrains Mono,monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(last.c.toFixed(1), W - PAD.right + 5, lpy + 4);
+            }
+
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(PAD.left, PAD.top);
+            ctx.lineTo(PAD.left, PAD.top + cH);
+            ctx.lineTo(PAD.left + cW, PAD.top + cH);
+            ctx.stroke();
+        }
+
+        function drawTag(x, y, text, color) {
+            ctx.save();
+            ctx.font = 'bold 9px JetBrains Mono,monospace';
+            ctx.textAlign = 'center';
+            var tw = ctx.measureText(text).width;
+
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = color;
+            ctx.fillRect(x - tw / 2 - 6, y - 11, tw + 12, 15);
+
+            ctx.globalAlpha = 0.5;
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 0.8;
+            ctx.strokeRect(x - tw / 2 - 6, y - 11, tw + 12, 15);
+
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = color;
+            ctx.fillText(text, x, y);
+            ctx.restore();
+        }
+
+        function addLog(msg, color) {
+            var area = document.getElementById('logArea');
+            var p = document.createElement('p');
+            p.style.cssText = 'font-size:0.72rem;font-family:JetBrains Mono,monospace;margin:3px 0;color:' + (color || '#334155');
+            p.textContent = '> ' + msg;
+            area.appendChild(p);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function updatePriceDisplay(c) {
+            document.getElementById('currentPrice').textContent = c.c.toFixed(1);
+
+            if (revealed.length > 1) {
+                var prev = revealed[revealed.length - 2];
+                var pct = ((c.c - prev.c) / prev.c * 100).toFixed(2);
+                var el = document.getElementById('priceChange');
+                el.textContent = (pct >= 0 ? '+' : '') + pct + '%';
+                el.style.color = pct >= 0 ? '#26a69a' : '#ef5350';
+            }
+        }
+
+        function activateT() {
+            if (tDone) return;
+            tDone = true;
+
+            document.getElementById('bT').className = 'badge badge-T';
+            document.getElementById('dT').textContent = 'BSL swept — Stop hunt confirmed!';
+            document.getElementById('dT').style.color = '#fbbf24';
+            document.getElementById('ckT').innerHTML = '&#10003;';
+            document.getElementById('ckT').style.color = '#fbbf24';
+
+            document.getElementById('hintText').textContent =
+                'T confirmed. Now watch for a strong bearish candle body close below the prior low to confirm Displacement.';
+            document.getElementById('hintText').style.color = '#fbbf24';
+        }
+
+        function activateC() {
+            if (cDone) return;
+            cDone = true;
+
+            document.getElementById('bC').className = 'badge badge-C';
+            document.getElementById('dC').textContent = 'Bearish displacement — FVG formed!';
+            document.getElementById('dC').style.color = '#ef4444';
+            document.getElementById('ckC').innerHTML = '&#10003;';
+            document.getElementById('ckC').style.color = '#ef4444';
+
+            document.getElementById('hintText').textContent =
+                'C confirmed. A bearish FVG exists overhead. Wait for price to retrace INTO that zone before making your move.';
+            document.getElementById('hintText').style.color = '#ef4444';
+
+            document.getElementById('slVal').textContent = (BSL_PRICE + 0.5).toFixed(1);
+            document.getElementById('tpVal').textContent = TARGET.toFixed(1);
+            document.getElementById('rrVal').textContent = '1 : 2.8';
+        }
+
+        function applyScenarioEvents(c, idx) {
+            if (c.phase === 'T') activateT();
+            if (c.phase === 'C') activateC();
+
+            if (c.bsl) addLog('Liquidity pool identified at ' + BSL_PRICE, '#fbbf24');
+            if (c.phase === 'T' && idx === 11) addLog('Stop hunt above BSL — Trigger activated', '#fbbf24');
+            if (c.phase === 'C' && idx === 13) addLog('Displacement! FVG [' + FVG_BOT + ' to ' + FVG_TOP + '] formed overhead', '#ef4444');
+            if (idx === 17) addLog('Price retracing... FVG in sight', '#64748b');
+            if (idx === 18) addLog('Entering FVG zone...', '#64FFDA');
+
+            if (c.phase === 'PAUSE') {
+                stopInternal(false);
+                paused = true;
+
+                var bP = document.getElementById('bP');
+                bP.className = 'badge badge-P pulse';
+
+                document.getElementById('dP').textContent = 'Price in FVG! Make your call.';
+                document.getElementById('dP').style.color = '#64FFDA';
+
+                document.getElementById('hintText').textContent =
+                    'T + C confirmed. Price is now INSIDE the bearish FVG zone. The TCP Protocol is complete. Which direction is the correct trade?';
+                document.getElementById('hintText').style.color = '#64FFDA';
+
+                addLog('SETUP COMPLETE — TCP Protocol fulfilled. Your move.', '#64FFDA');
+
+                setTimeout(function() {
+                    if (paused) {
+                        document.getElementById('decisionOverlay').classList.add('show');
+                    }
+                }, 250);
+            }
+        }
+
+        function animateCandle(targetCandle, done) {
+            cancelAnimationFrame(animationFrame);
+
+            var start = performance.now();
+            var prevClose = revealed.length ? revealed[revealed.length - 1].c : targetCandle.o;
+
+            animatingCandle = {
+                target: targetCandle,
+                current: {
+                    o: prevClose,
+                    h: prevClose,
+                    l: prevClose,
+                    c: prevClose,
+                    phase: targetCandle.phase,
+                    bsl: targetCandle.bsl
+                }
+            };
+
+            function step(now) {
+                var t = Math.min((now - start) / animationDuration, 1);
+                var e = easeOutCubic(t);
+
+                animatingCandle.current = {
+                    o: lerp(prevClose, targetCandle.o, e),
+                    h: lerp(prevClose, targetCandle.h, e),
+                    l: lerp(prevClose, targetCandle.l, e),
+                    c: lerp(prevClose, targetCandle.c, e),
+                    phase: targetCandle.phase,
+                    bsl: targetCandle.bsl
+                };
+
+                draw();
+
+                if (t < 1 && simRunning) {
+                    animationFrame = requestAnimationFrame(step);
+                } else {
+                    animatingCandle = null;
+                    revealed.push(targetCandle);
+                    updatePriceDisplay(targetCandle);
+                    document.getElementById('candleCount').textContent =
+                        Math.min(revealed.length, PAUSE_IDX + 1) + ' / ' + (PAUSE_IDX + 1);
+                    draw();
+                    done();
+                }
+            }
+
+            animationFrame = requestAnimationFrame(step);
+        }
+
+        function playNextCandle() {
+            if (!simRunning || animatingCandle) return;
+
+            if (currentIdx >= SCENARIO.length) {
+                stopInternal(false);
+                if (decision === 'SELL') {
+                    setTimeout(function() { showResult(true); }, 600);
+                }
+                return;
+            }
+
+            var idx = currentIdx;
+            var c = SCENARIO[idx];
+
+            animateCandle(c, function() {
+                applyScenarioEvents(c, idx);
+                currentIdx++;
+
+                if (playbackMode === 'decision' && currentIdx >= SCENARIO.length) {
+                    stopInternal(false);
+                    setTimeout(function() { showResult(decision === 'SELL'); }, 700);
+                    return;
+                }
+
+                if (simRunning) {
+                    ticker = setTimeout(playNextCandle, speedMs);
+                }
+            });
+        }
+
+        function stopInternal(logIt) {
+            clearTimeout(ticker);
+            ticker = null;
+            cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+            simRunning = false;
+
+            if (logIt) addLog('Simulation stopped.', '#ef4444');
+        }
+
+        function startSim() {
+            if (simRunning) return;
+            if (document.getElementById('decisionOverlay').classList.contains('show')) return;
+
+            simRunning = true;
+            paused = false;
+
+            document.getElementById('btnStart').innerHTML = '&#9654; Resume';
+            addLog(currentIdx === 0 ? 'Simulation started — watching NQ1! 1M' : 'Simulation resumed.', '#64FFDA');
+
+            playNextCandle();
+        }
+
+        function stopSim() {
+            if (!simRunning) return;
+            stopInternal(true);
+        }
+
+        function submitDecision(dir) {
+            if (!paused) return;
+
+            clearTimeout(ticker);
+            cancelAnimationFrame(animationFrame);
+
+            decision = dir;
+            paused = false;
+            simRunning = true;
+            playbackMode = 'decision';
+
+            document.getElementById('decisionOverlay').classList.remove('show');
+            document.getElementById('bP').classList.remove('pulse');
+            document.getElementById('ckP').innerHTML = '&#10003;';
+            document.getElementById('ckP').style.color = '#64FFDA';
+
+            addLog('Decision: ' + dir, dir === 'SELL' ? '#ef4444' : '#26a69a');
+            draw();
+
+            currentIdx = PAUSE_IDX + 1;
+            playNextCandle();
+        }
+
+        function showResult(correct) {
+            document.getElementById('resultModal').classList.add('show');
+            var card = document.getElementById('resultCard');
+
+            if (correct) {
+                document.getElementById('rIcon').innerHTML = '&#127919;';
+                document.getElementById('rTitle').textContent = 'Perfect Trade!';
+                document.getElementById('rTitle').style.color = '#64FFDA';
+                document.getElementById('rSub').textContent = 'You identified all three TCP phases correctly.';
+                card.style.borderColor = 'rgba(100,255,218,0.35)';
+
+                document.getElementById('rStats').innerHTML =
+                    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">' +
+                        '<div class="glass" style="padding:12px;text-align:center;border-color:rgba(100,255,218,0.2)">' +
+                            '<p style="color:#64FFDA;font-weight:900;font-size:1.3rem;font-family:JetBrains Mono,monospace;margin:0">+2.8R</p>' +
+                            '<p style="font-size:0.68rem;color:#334155;margin:4px 0 0">Reward</p>' +
+                        '</div>' +
+                        '<div class="glass" style="padding:12px;text-align:center;border-color:rgba(100,255,218,0.2)">' +
+                            '<p style="color:#64FFDA;font-weight:900;font-size:1.3rem;font-family:JetBrains Mono,monospace;margin:0">SELL</p>' +
+                            '<p style="font-size:0.68rem;color:#334155;margin:4px 0 0">Direction</p>' +
+                        '</div>' +
+                        '<div class="glass" style="padding:12px;text-align:center;border-color:rgba(100,255,218,0.2)">' +
+                            '<p style="color:#64FFDA;font-weight:900;font-size:1.4rem;margin:0">&#11088;&#11088;&#11088;</p>' +
+                            '<p style="font-size:0.68rem;color:#334155;margin:4px 0 0">Rating</p>' +
+                        '</div>' +
+                    '</div>';
+
+                document.getElementById('rExplainText').textContent =
+                    'BSL at 104.6 was swept — Trigger confirmed. A strong bearish displacement then created an FVG between 102.5 and 103.8 — Confirmation done. When price retraced into that FVG, that was your Participation window. Short with SL above the OB and TP at the swing low (97.6) gives a clean 1:2.8 RR.';
+            } else {
+                document.getElementById('rIcon').innerHTML = '&#128218;';
+                document.getElementById('rTitle').textContent = 'Not This Time';
+                document.getElementById('rTitle').style.color = '#ef4444';
+                document.getElementById('rSub').textContent = 'Price dropped further. Here is why SELL was the correct call.';
+                card.style.borderColor = 'rgba(239,68,68,0.3)';
+
+                document.getElementById('rStats').innerHTML =
+                    '<div class="glass" style="padding:14px;border-color:rgba(239,68,68,0.2);background:rgba(239,68,68,0.04)">' +
+                        '<p style="color:#ef4444;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin:0 0 10px">What you missed:</p>' +
+                        '<ul style="list-style:none;padding:0;margin:0;font-size:0.78rem;line-height:1.9;color:#94a3b8">' +
+                            '<li>&#8594; BSL swept above 104.6 = T confirmed</li>' +
+                            '<li>&#8594; Bearish displacement + FVG formed = C confirmed</li>' +
+                            '<li>&#8594; Retrace into FVG (102.5&#8211;103.8) = P confirmed</li>' +
+                            '<li style="color:#ef4444;margin-top:6px">&#8594; All 3 phases = SELL signal, not BUY</li>' +
+                        '</ul>' +
+                    '</div>';
+
+                document.getElementById('rExplainText').textContent =
+                    'When a stop hunt above a prior high is followed by bearish displacement, the algorithm has shown its direction. The retrace into the FVG is your short entry window. Never fight the direction the algorithm has already revealed. Review the T-C-P module and try again.';
+            }
+        }
+
+        function closeResult() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        function resetSim() {
+            clearTimeout(ticker);
+            cancelAnimationFrame(animationFrame);
+
+            ticker = null;
+            animationFrame = null;
+            animatingCandle = null;
+
+            revealed = [];
+            simRunning = false;
+            paused = false;
+            decision = null;
+            tDone = false;
+            cDone = false;
+            currentIdx = 0;
+            playbackMode = 'main';
+
+            document.getElementById('decisionOverlay').classList.remove('show');
+            document.getElementById('resultModal').classList.remove('show');
+
+            document.getElementById('btnStart').innerHTML = '&#9654; Start';
+            document.getElementById('currentPrice').textContent = '—';
+            document.getElementById('priceChange').textContent = '+0.00%';
+            document.getElementById('priceChange').style.color = '#64748b';
+            document.getElementById('candleCount').textContent = '0 / 20';
+            document.getElementById('slVal').textContent = '—';
+            document.getElementById('tpVal').textContent = '—';
+            document.getElementById('rrVal').textContent = '—';
+
+            document.getElementById('logArea').innerHTML =
+                '<p style="font-size:0.72rem;font-family:JetBrains Mono,monospace;color:#334155;margin:0">// Simulation ready. Press Start to begin.</p>';
+
+            ['T', 'C', 'P'].forEach(function(l) {
+                document.getElementById('b' + l).className = 'badge badge-off';
+                document.getElementById('d' + l).style.color = '#334155';
+                document.getElementById('ck' + l).innerHTML = '&#9675;';
+                document.getElementById('ck' + l).style.color = '#1e293b';
+            });
+
+            document.getElementById('dT').textContent = 'Waiting for stop hunt…';
+            document.getElementById('dC').textContent = 'Awaiting displacement…';
+            document.getElementById('dP').textContent = 'Waiting for retrace…';
+            document.getElementById('bP').classList.remove('pulse');
+
+            document.getElementById('hintText').textContent =
+                'Watch for price to sweep above a prior high. That is your first sign the algorithm has activated.';
+            document.getElementById('hintText').style.color = '#475569';
+
+            draw();
+        }
+
+        function setSpeed(id, ms) {
+            speedMs = ms;
+            animationDuration = Math.max(150, Math.min(420, Math.round(ms * 0.55)));
+
+            ['sp1', 'sp2', 'sp3'].forEach(function(s) {
+                document.getElementById(s).classList.remove('active');
+            });
+
+            document.getElementById(id).classList.add('active');
+        }
+
+        window.addEventListener('load', function() {
+            canvas = document.getElementById('mainChart');
+            ctx = canvas.getContext('2d');
+
+            sizeCanvas();
+            draw();
+
+            window.addEventListener('resize', function() {
+                sizeCanvas();
+                draw();
+            });
+        });
+    </script>
+</body>
+</html>

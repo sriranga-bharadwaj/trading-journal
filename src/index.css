@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+@theme {
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --color-teal: #64FFDA;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617);
+    color: #f8fafc;
+    overflow-x: hidden;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Floating Animation */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.float {
+    animation: float 4s ease-in-out infinite;
+}
+
+/* Reveal Animations */
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 1s ease-out;
+}
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 1s ease-out;
+}
+
+.reveal-up {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 1s ease-out;
+}
+
+.reveal-visible {
+    opacity: 1;
+    transform: translate(0);
+}
+
+/* Dynamic Background Sequence */
+#dynamic-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    background: #020617;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.candle-bg {
+    position: absolute;
+    width: 200%;
+    height: 100%;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    opacity: 0.15;
+    animation: slideLeft 15s linear infinite;
+    filter: blur(2px);
+}
+
+.candle {
+    width: 12px;
+    border-radius: 2px;
+    background: #64FFDA;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.candle::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    width: 2px;
+    height: 150%;
+    background: #64FFDA;
+    top: -25%;
+    z-index: -1;
+}
+
+.candle.red {
+    background: #ef4444;
+}
+
+.candle.red::before {
+    background: #ef4444;
+}
+
+@keyframes slideLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.zen-image-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    opacity: 0;
+    background-image: url('/intro_zen.png');
+    background-size: cover;
+    background-position: center;
+    transition: opacity 2.5s ease-in-out;
+}
+
+.zen-image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, rgba(2, 6, 23, 0.95) 0%, rgba(2, 6, 23, 0.5) 100%);
+}
+
+.zen-active .zen-image-wrapper {
+    opacity: 1;
+}
